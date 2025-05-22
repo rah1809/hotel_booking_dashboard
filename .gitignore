@@ -47,3 +47,7 @@ instance/
 hotel_booking_cleaned.csv venv/
 __pycache__/
 *.pyc
+venv/
+__pycache__/
+*.pyc
+.DS_Store
