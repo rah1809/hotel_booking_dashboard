@@ -44,4 +44,6 @@ Thumbs.db
 instance/
 *.db
 *.sqlite3
-hotel_booking_cleaned.csv 
+hotel_booking_cleaned.csv venv/
+__pycache__/
+*.pyc
