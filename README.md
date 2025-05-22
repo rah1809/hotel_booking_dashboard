@@ -1,6 +1,6 @@
 # Hotel Booking Dashboard
 
-An interactive dashboard built with Streamlit to analyze hotel booking data.
+An interactive dashboard built with Streamlit and Flask to analyze hotel booking data.
 
 ## Features
 
@@ -9,6 +9,7 @@ An interactive dashboard built with Streamlit to analyze hotel booking data.
 - Multiple visualizations (bar, pie, line charts)
 - Responsive layout
 - Cached data loading for better performance
+- Dual interface: Streamlit dashboard and Flask web application
 
 ## Setup
 
@@ -23,30 +24,32 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Place your hotel bookings CSV file in the `data` directory:
-```bash
-mkdir -p data
-# Copy your hotel_bookings.csv to data/
-```
-
-4. Run the Streamlit app:
+3. Run the Streamlit app:
 ```bash
 streamlit run src/streamlit_app.py
+```
+
+4. Run the Flask app:
+```bash
+python app.py
 ```
 
 ## Project Structure
 
 ```
 hotel_booking_dashboard/
-├── data/
-│   └── hotel_bookings.csv
 ├── src/
-│   ├── streamlit_app.py
-│   ├── components/
-│   ├── utils/
-│   └── pages/
-├── requirements.txt
-└── README.md
+│   ├── streamlit_app.py      # Main Streamlit application
+│   ├── components/           # Reusable Streamlit components
+│   ├── utils/               # Utility functions
+│   └── pages/               # Streamlit pages
+├── app.py                   # Flask application
+├── templates/               # Flask HTML templates
+├── static/                  # Static files (CSS, JS, images)
+├── data/                    # Data files
+├── docs/                    # Documentation
+├── requirements.txt         # Project dependencies
+└── README.md               # Project documentation
 ```
 
 ## Development
@@ -54,6 +57,8 @@ hotel_booking_dashboard/
 - The app uses SQLite for faster data loading after initial CSV import
 - All data processing is cached for better performance
 - Charts are built with Plotly for interactivity
+- Flask backend provides RESTful API endpoints
+- Streamlit frontend offers interactive data exploration
 
 ## Deployment
 
@@ -64,4 +69,8 @@ hotel_booking_dashboard/
 
 ## Contributing
 
-Feel free to submit issues and enhancement requests! 
+Feel free to submit issues and enhancement requests!
+
+## License
+
+MIT License 
