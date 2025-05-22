@@ -45,4 +45,15 @@ Thumbs.db
 instance/
 .pytest_cache/
 .coverage
-htmlcov/ 
+htmlcov/
+
+# Database and large files
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.zip
+hotel_booking_cleaned.csv
+Capstone_Project_3.zip
+hotel_booking.db
+hotel_bookings.db 
