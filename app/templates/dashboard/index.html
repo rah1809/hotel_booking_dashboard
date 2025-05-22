@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Hotel Booking Dashboard</h1>
+    
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700">Total Bookings</h3>
+            <p class="text-3xl font-bold text-blue-600">{{ total_bookings }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700">Active Bookings</h3>
+            <p class="text-3xl font-bold text-green-600">{{ active_bookings }}</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700">Revenue</h3>
+            <p class="text-3xl font-bold text-purple-600">${{ total_revenue }}</p>
+        </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Bookings by Hotel Type -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">Bookings by Hotel Type</h3>
+            <canvas id="hotelTypeChart"></canvas>
+        </div>
+
+        <!-- Cancellation Distribution -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">Cancellation Distribution</h3>
+            <canvas id="cancellationChart"></canvas>
+        </div>
+
+        <!-- Monthly Revenue Trend -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">Monthly Revenue Trend</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+
+        <!-- Customer Type Distribution -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4">Customer Type Distribution</h3>
+            <canvas id="customerTypeChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Color scheme
+const colors = {
+    blue: '#36A2EB',
+    red: '#FF6384',
+    yellow: '#FFCE56',
+    teal: '#4BC0C0',
+    violet: '#9966FF',
+    purple: '#8e5ea2'
+};
+
+// Hotel Type Chart
+new Chart(document.getElementById('hotelTypeChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ hotel_types|tojson }},
+        datasets: [{
+            label: 'Number of Bookings',
+            data: {{ hotel_type_data|tojson }},
+            backgroundColor: colors.blue,
+            borderColor: colors.blue,
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Cancellation Chart
+new Chart(document.getElementById('cancellationChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Not Cancelled', 'Cancelled'],
+        datasets: [{
+            data: {{ cancellation_data|tojson }},
+            backgroundColor: [colors.green, colors.red],
+            borderColor: [colors.green, colors.red],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+
+// Revenue Chart
+new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+        labels: {{ monthly_labels|tojson }},
+        datasets: [{
+            label: 'Monthly Revenue',
+            data: {{ monthly_revenue|tojson }},
+            borderColor: colors.purple,
+            backgroundColor: colors.purple,
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Customer Type Chart
+new Chart(document.getElementById('customerTypeChart'), {
+    type: 'pie',
+    data: {
+        labels: {{ customer_types|tojson }},
+        datasets: [{
+            data: {{ customer_type_data|tojson }},
+            backgroundColor: [colors.blue, colors.teal, colors.yellow],
+            borderColor: [colors.blue, colors.teal, colors.yellow],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+</script>
+{% endblock %} 

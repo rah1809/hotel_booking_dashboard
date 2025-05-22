@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="{{ url_for('main.index') }}" class="text-xl font-bold text-gray-800">
+                            Hotel Dashboard
+                        </a>
+                    </div>
+                    <div class="hidden md:ml-6 md:flex md:space-x-8">
+                        <a href="{{ url_for('main.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
+                            Home
+                        </a>
+                        <a href="{{ url_for('booking.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
+                            Bookings
+                        </a>
+                        <a href="{{ url_for('room.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
+                            Rooms
+                        </a>
+                        <a href="{{ url_for('dashboard.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
+                            Dashboard
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    {% if current_user.is_authenticated %}
+                        <div class="ml-3 relative">
+                            <div class="flex items-center space-x-4">
+                                <a href="{{ url_for('user.profile') }}" class="text-gray-500 hover:text-gray-700">
+                                    {{ current_user.name }}
+                                </a>
+                                <a href="{{ url_for('auth.logout') }}" class="text-gray-500 hover:text-gray-700">
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-gray-500 hover:text-gray-700">
+                            Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="max-w-7xl mx-auto px-4 mt-4">
+                    <div class="rounded-md p-4 {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</body>
+</html> 
