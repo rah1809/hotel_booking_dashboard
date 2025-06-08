@@ -1,238 +1,277 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard 1 - Hotel Booking Analytics</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-light">
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Hotel Booking Dashboard</a>
-            <div class="navbar-nav">
-                <a class="nav-link active" href="/">Dashboard 1</a>
-                <a class="nav-link" href="/dashboard2">Dashboard 2</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    <div class="container mt-4">
-        <h1 class="text-center mb-4">Bookings Overview</h1>
-        <!-- Filters -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <select id="hotelFilter" class="form-select">
-                    <option value="">All Hotels</option>
-                    <option value="City Hotel">City Hotel</option>
-                    <option value="Resort Hotel">Resort Hotel</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <select id="yearFilter" class="form-select">
-                    <option value="">All Years</option>
-                    <option value="2015">2015</option>
-                    <option value="2016">2016</option>
-                    <option value="2017">2017</option>
-                </select>
-            </div>
-            <div class="col-md-4">
-                <select id="monthFilter" class="form-select">
-                    <option value="">All Months</option>
-                    <option value="January">January</option>
-                    <option value="February">February</option>
-                    <option value="March">March</option>
-                    <option value="April">April</option>
-                    <option value="May">May</option>
-                    <option value="June">June</option>
-                    <option value="July">July</option>
-                    <option value="August">August</option>
-                    <option value="September">September</option>
-                    <option value="October">October</option>
-                    <option value="November">November</option>
-                    <option value="December">December</option>
-                </select>
-            </div>
-        </div>
+{% block content %}
+<!-- Dashboard Title and Description -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Strategic Overview Dashboard</h1>
+    <p class="mt-2 text-gray-600">Comprehensive view of hotel performance metrics and trends for strategic decision-making.</p>
+</div>
 
-        <!-- KPI Cards Section -->
-        <div class="row mb-4" id="kpi-cards">
-            <div class="col-md-3 mb-3">
-                <div id="total-bookings" class="card text-center h-100">
-                    <!-- Filled by JS -->
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div id="total-revenue" class="card text-center h-100">
-                    <!-- Filled by JS -->
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div id="average-adr" class="card text-center h-100">
-                    <!-- Filled by JS -->
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div id="occupancy-rate" class="card text-center h-100">
-                    <!-- Filled by JS -->
-                </div>
-            </div>
-        </div>
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="kpi-card">
+        <h3 class="text-sm font-medium text-gray-500">Total Bookings</h3>
+        <p id="totalBookings" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
+        <p class="mt-1 text-sm text-gray-500">All time bookings</p>
+    </div>
+    
+    <div class="kpi-card">
+        <h3 class="text-sm font-medium text-gray-500">Total Revenue</h3>
+        <p id="totalRevenue" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
+        <p class="mt-1 text-sm text-gray-500">Revenue in USD</p>
+    </div>
+    
+    <div class="kpi-card">
+        <h3 class="text-sm font-medium text-gray-500">Average ADR</h3>
+        <p id="averageAdr" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
+        <p class="mt-1 text-sm text-gray-500">Average Daily Rate</p>
+    </div>
+    
+    <div class="kpi-card">
+        <h3 class="text-sm font-medium text-gray-500">Occupancy Rate</h3>
+        <p id="occupancyRate" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
+        <p class="mt-1 text-sm text-gray-500">Average occupancy</p>
+    </div>
+</div>
 
-        <!-- Dashboard Charts Section -->
-        <div class="row">
-            <!-- Bookings by Hotel Type -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm rounded">
-                    <div class="card-header fw-bold">Bookings by Hotel Type</div>
-                    <div class="card-body">
-                        <canvas id="hotelTypeChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <!-- Canceled vs Not Canceled -->
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm rounded">
-                    <div class="card-header fw-bold">Canceled vs Not Canceled</div>
-                    <div class="card-body">
-                        <canvas id="cancellationChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <!-- Monthly Revenue Trend -->
-            <div class="col-md-12 mb-4">
-                <div class="card shadow-sm rounded">
-                    <div class="card-header fw-bold">Monthly Revenue Trend</div>
-                    <div class="card-body">
-                        <canvas id="revenueTrendChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <!-- Top 5 Guest Countries -->
-            <div class="col-md-12 mb-4">
-                <div class="card shadow-sm rounded">
-                    <div class="card-header fw-bold">Top 5 Guest Countries</div>
-                    <div class="card-body">
-                        <canvas id="topCountriesChart"></canvas>
-                    </div>
-                </div>
-            </div>
+<!-- Main Charts Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Revenue Trend -->
+    <div class="chart-container">
+        <h3 class="text-lg font-semibold mb-4">Monthly Revenue Trend</h3>
+        <canvas id="revenueChart"></canvas>
+    </div>
+    
+    <!-- Booking Distribution -->
+    <div class="chart-container">
+        <h3 class="text-lg font-semibold mb-4">Hotel Booking Distribution</h3>
+        <canvas id="hotelDistributionChart"></canvas>
+    </div>
+    
+    <!-- Cancellation Analysis -->
+    <div class="chart-container">
+        <h3 class="text-lg font-semibold mb-4">Booking Cancellation Status</h3>
+        <canvas id="cancellationChart"></canvas>
+    </div>
+    
+    <!-- Top Source Markets -->
+    <div class="chart-container">
+        <h3 class="text-lg font-semibold mb-4">Top Source Markets</h3>
+        <canvas id="topCountriesChart"></canvas>
+    </div>
+</div>
+
+<!-- Insights Section -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-xl font-semibold mb-4">Key Insights</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h3 class="font-medium text-gray-900 mb-2">Revenue Performance</h3>
+            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                <li>Peak revenue months: <span id="peakRevenueMonths">-</span></li>
+                <li>Revenue growth rate: <span id="revenueGrowthRate">-</span></li>
+                <li>Best performing hotel: <span id="bestPerformingHotel">-</span></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-medium text-gray-900 mb-2">Booking Health</h3>
+            <ul class="list-disc list-inside text-gray-600 space-y-2">
+                <li>Cancellation rate: <span id="cancellationRate">-</span></li>
+                <li>Average lead time: <span id="avgLeadTime">-</span></li>
+                <li>Occupancy trend: <span id="occupancyTrend">-</span></li>
+            </ul>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-const loadCharts = () => {
-    const hotel = document.getElementById('hotelFilter').value;
-    const year = document.getElementById('yearFilter').value;
-    const month = document.getElementById('monthFilter').value;
-
-    // Fetch Booking Data
-    fetch(`/hotel_data?hotel=${hotel}&year=${year}&month=${month}`)
-        .then(response => response.json())
-        .then(data => {
-            hotelTypeChart.data.labels = data.labels;
-            hotelTypeChart.data.datasets[0].data = data.counts;
-            hotelTypeChart.update();
-        });
-
-    // Fetch Cancellation Data
-    fetch(`/cancellation_data?hotel=${hotel}&year=${year}&month=${month}`)
-        .then(response => response.json())
-        .then(data => {
-            cancellationChart.data.labels = data.labels;
-            cancellationChart.data.datasets[0].data = data.counts;
-            cancellationChart.update();
-        });
-
-    // Fetch Revenue Data
-    fetch(`/revenue_data?hotel=${hotel}&year=${year}`)
-        .then(response => response.json())
-        .then(data => {
-            revenueTrendChart.data.labels = data.labels;
-            revenueTrendChart.data.datasets[0].data = data.values;
-            revenueTrendChart.update();
-        });
-};
-
-const loadKPIs = () => {
-    const hotel = document.getElementById('hotelFilter').value;
-    const year = document.getElementById('yearFilter').value;
-    const month = document.getElementById('monthFilter').value;
-
-    fetch(`/kpi_data?hotel=${hotel}&year=${year}&month=${month}`)
-        .then(response => response.json())
-        .then(kpis => {
-            document.getElementById('total-bookings').innerHTML = `<div class='card-body'><h3 class='card-title mb-2'>Total Bookings</h3><p class='display-6 text-primary fw-bold'>${kpis.total_bookings}</p></div>`;
-            document.getElementById('total-revenue').innerHTML = `<div class='card-body'><h3 class='card-title mb-2'>Total Revenue</h3><p class='display-6 text-success fw-bold'>$${kpis.total_revenue}</p></div>`;
-            document.getElementById('average-adr').innerHTML = `<div class='card-body'><h3 class='card-title mb-2'>Avg ADR</h3><p class='display-6 text-purple fw-bold'>$${kpis.average_adr}</p></div>`;
-            document.getElementById('occupancy-rate').innerHTML = `<div class='card-body'><h3 class='card-title mb-2'>Occupancy Rate</h3><p class='display-6 text-warning fw-bold'>${kpis.occupancy_rate}%</p></div>`;
-        });
-};
-
-// Initialize charts and KPIs first time
-let hotelTypeChart;
-let cancellationChart;
-let revenueTrendChart;
-let topCountriesChart;
-
-window.onload = function() {
-    const ctx1 = document.getElementById('hotelTypeChart').getContext('2d');
-    const ctx2 = document.getElementById('cancellationChart').getContext('2d');
-    const ctx3 = document.getElementById('revenueTrendChart').getContext('2d');
-    const ctx4 = document.getElementById('topCountriesChart').getContext('2d');
-
-    hotelTypeChart = new Chart(ctx1, {
-        type: 'bar',
-        data: { labels: [], datasets: [{ label: 'Number of Bookings', data: [], backgroundColor: ['#36A2EB', '#FF6384'] }] },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
-
-    cancellationChart = new Chart(ctx2, {
-        type: 'pie',
-        data: { labels: [], datasets: [{ label: 'Booking Status', data: [], backgroundColor: ['#4BC0C0', '#FF9F40'] }] },
-        options: { responsive: true }
-    });
-
-    revenueTrendChart = new Chart(ctx3, {
+{% block scripts %}
+<script>
+// Chart configurations
+const chartConfigs = {
+    revenue: {
         type: 'line',
-        data: { labels: [], datasets: [{ label: 'Monthly Revenue', data: [], borderColor: '#8e5ea2', fill: false }] },
         options: {
             responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Monthly Revenue Trend'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Revenue: $${context.raw.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
             scales: {
-                y: { beginAtZero: true }
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
             }
         }
-    });
-
-    topCountriesChart = new Chart(ctx4, {
+    },
+    hotelDistribution: {
+        type: 'pie',
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Hotel Booking Distribution'
+                }
+            }
+        }
+    },
+    cancellation: {
+        type: 'doughnut',
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Booking Cancellation Status'
+                }
+            }
+        }
+    },
+    topCountries: {
         type: 'bar',
-        data: { labels: [], datasets: [{ label: 'Number of Bookings', data: [], backgroundColor: ['#36A2EB', '#FF6384', '#4BC0C0', '#FF9F40', '#8e5ea2'] }] },
-        options: { responsive: true, scales: { y: { beginAtZero: true } } }
-    });
-
-    loadCharts();
-    loadKPIs();
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Top Source Markets'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    }
 };
 
-// Add event listeners for filters
-setTimeout(() => {
-    document.getElementById('hotelFilter').addEventListener('change', () => {
-        loadCharts();
-        loadKPIs();
-    });
-    document.getElementById('yearFilter').addEventListener('change', () => {
-        loadCharts();
-        loadKPIs();
-    });
-    document.getElementById('monthFilter').addEventListener('change', () => {
-        loadCharts();
-        loadKPIs();
-    });
-}, 100);
-    </script>
-</body>
-</html> 
+// Initialize charts
+let charts = {};
+
+function initCharts() {
+    // Revenue Chart
+    charts.revenue = new Chart(
+        document.getElementById('revenueChart'),
+        chartConfigs.revenue
+    );
+    
+    // Hotel Distribution Chart
+    charts.hotelDistribution = new Chart(
+        document.getElementById('hotelDistributionChart'),
+        chartConfigs.hotelDistribution
+    );
+    
+    // Cancellation Chart
+    charts.cancellation = new Chart(
+        document.getElementById('cancellationChart'),
+        chartConfigs.cancellation
+    );
+    
+    // Top Countries Chart
+    charts.topCountries = new Chart(
+        document.getElementById('topCountriesChart'),
+        chartConfigs.topCountries
+    );
+}
+
+// Update all charts with new data
+async function updateAllCharts(hotel, year, month) {
+    // Update KPIs
+    const kpiData = await fetch(`/kpi_data?hotel=${hotel}&year=${year}&month=${month}`).then(r => r.json());
+    document.getElementById('totalBookings').textContent = kpiData.total_bookings.toLocaleString();
+    document.getElementById('totalRevenue').textContent = `$${kpiData.total_revenue.toLocaleString()}`;
+    document.getElementById('averageAdr').textContent = `$${kpiData.average_adr.toLocaleString()}`;
+    document.getElementById('occupancyRate').textContent = `${kpiData.occupancy_rate.toFixed(1)}%`;
+    
+    // Update Revenue Chart
+    const revenueData = await fetch(`/revenue_data?hotel=${hotel}&year=${year}`).then(r => r.json());
+    charts.revenue.data.labels = revenueData.labels;
+    charts.revenue.data.datasets = [{
+        label: 'Revenue',
+        data: revenueData.values,
+        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() + '20',
+        fill: true
+    }];
+    charts.revenue.update();
+    
+    // Update Hotel Distribution Chart
+    const hotelData = await fetch(`/hotel_data?hotel=${hotel}&year=${year}&month=${month}`).then(r => r.json());
+    charts.hotelDistribution.data.labels = hotelData.labels;
+    charts.hotelDistribution.data.datasets = [{
+        data: hotelData.counts,
+        backgroundColor: [
+            getComputedStyle(document.documentElement).getPropertyValue('--city-hotel').trim(),
+            getComputedStyle(document.documentElement).getPropertyValue('--resort-hotel').trim()
+        ]
+    }];
+    charts.hotelDistribution.update();
+    
+    // Update Cancellation Chart
+    const cancelData = await fetch(`/cancellation_data?hotel=${hotel}&year=${year}&month=${month}`).then(r => r.json());
+    charts.cancellation.data.labels = cancelData.labels;
+    charts.cancellation.data.datasets = [{
+        data: cancelData.counts,
+        backgroundColor: [
+            getComputedStyle(document.documentElement).getPropertyValue('--not-canceled').trim(),
+            getComputedStyle(document.documentElement).getPropertyValue('--canceled').trim()
+        ]
+    }];
+    charts.cancellation.update();
+    
+    // Update Top Countries Chart
+    const countriesData = await fetch(`/top_countries_data?hotel=${hotel}&year=${year}&month=${month}`).then(r => r.json());
+    charts.topCountries.data.labels = countriesData.labels;
+    charts.topCountries.data.datasets = [{
+        label: 'Bookings',
+        data: countriesData.counts,
+        backgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim()
+    }];
+    charts.topCountries.update();
+    
+    // Update insights
+    updateInsights(hotel, year, month);
+}
+
+// Update insights section
+async function updateInsights(hotel, year, month) {
+    // Calculate insights from the data
+    const revenueData = await fetch(`/revenue_data?hotel=${hotel}&year=${year}`).then(r => r.json());
+    const cancelData = await fetch(`/cancellation_data?hotel=${hotel}&year=${year}&month=${month}`).then(r => r.json());
+    
+    // Find peak revenue months
+    const maxRevenue = Math.max(...revenueData.values);
+    const peakMonths = revenueData.labels.filter((_, i) => revenueData.values[i] === maxRevenue);
+    document.getElementById('peakRevenueMonths').textContent = peakMonths.join(', ');
+    
+    // Calculate cancellation rate
+    const totalBookings = cancelData.counts.reduce((a, b) => a + b, 0);
+    const cancellationRate = ((cancelData.counts[1] / totalBookings) * 100).toFixed(1);
+    document.getElementById('cancellationRate').textContent = `${cancellationRate}%`;
+    
+    // Update other insights...
+}
+
+// Initialize dashboard
+document.addEventListener('DOMContentLoaded', () => {
+    initCharts();
+    updateAllCharts('All Hotels', 'All Years', 'All Months');
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking Analytics</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            /* Theme Colors */
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --background-color: #f8fafc;
+            --text-color: #1e293b;
+            
+            /* Chart Colors */
+            --city-hotel: #38BDF8;
+            --resort-hotel: #FACC15;
+            --canceled: #EF4444;
+            --not-canceled: #22C55E;
+            --transient: #A5F3FC;
+            --transient-party: #FDE68A;
+            --contract: #C4B5FD;
+            --group: #FDA4AF;
+            --ta-to: #99F6E4;
+            --direct: #FDE047;
+            --corporate: #FCA5A5;
+            --gds: #93C5FD;
+            --undefined: #E5E7EB;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        
+        .dashboard-card {
+            @apply bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg;
+        }
+        
+        .kpi-card {
+            @apply bg-white rounded-lg shadow-md p-4 border-l-4 border-blue-500;
+        }
+        
+        .chart-container {
+            @apply bg-white rounded-lg shadow-md p-6 h-[400px];
+        }
+        
+        .filter-container {
+            @apply flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg shadow-md;
+        }
+        
+        .nav-link {
+            @apply px-4 py-2 rounded-md transition-colors duration-200;
+        }
+        
+        .nav-link.active {
+            @apply bg-blue-500 text-white;
+        }
+        
+        .nav-link:hover:not(.active) {
+            @apply bg-blue-50;
+        }
+        
+        @media (max-width: 768px) {
+            .filter-container {
+                @apply flex-col;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold text-blue-600">Hotel Analytics</h1>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                            Strategic Overview
+                        </a>
+                        <a href="/dashboard2" class="nav-link {% if request.path == '/dashboard2' %}active{% endif %}">
+                            Operational Analytics
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Filters -->
+        <div class="filter-container">
+            <select id="hotelFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="All Hotels">All Hotels</option>
+                <option value="City Hotel">City Hotel</option>
+                <option value="Resort Hotel">Resort Hotel</option>
+            </select>
+            
+            <select id="yearFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="All Years">All Years</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+            </select>
+            
+            <select id="monthFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                <option value="All Months">All Months</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        </div>
+
+        <!-- Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white shadow-md mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <p class="text-center text-gray-500 text-sm">
+                Hotel Booking Analytics Dashboard © 2024
+            </p>
+        </div>
+    </footer>
+
+    <!-- Common JavaScript -->
+    <script>
+        // Filter change handler
+        function updateFilters() {
+            const hotel = document.getElementById('hotelFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            
+            // Update all charts with new filters
+            updateAllCharts(hotel, year, month);
+        }
+
+        // Add event listeners to filters
+        document.getElementById('hotelFilter').addEventListener('change', updateFilters);
+        document.getElementById('yearFilter').addEventListener('change', updateFilters);
+        document.getElementById('monthFilter').addEventListener('change', updateFilters);
+
+        // Chart.js defaults
+        Chart.defaults.font.family = "'Inter', system-ui, -apple-system, sans-serif";
+        Chart.defaults.color = '#1e293b';
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.cornerRadius = 4;
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html> 
