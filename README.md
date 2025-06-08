@@ -4,38 +4,62 @@ A comprehensive analytics dashboard for hotel booking data, providing strategic 
 
 ## Project Overview
 
-This project includes two purpose-driven dashboards designed to meet the distinct needs of strategic decision-makers and operational managers within the hospitality sector. Each dashboard is tailored with specific users, goals, and metrics in mind, ensuring actionable insights aligned to business priorities.
+This project delivers two dashboards, each designed with a specific business user, goal, and storyline in mind. The dashboards are intentionally connected: the first provides a strategic overview for executives, while the second offers operational insights for managers. Together, they enable data-driven decisions at every level of hotel management.
 
-### 📊 Dashboard 1: Booking Trends Overview
-* **Type:** Strategic Dashboard
-* **Primary Purpose:** To provide a high-level overview of hotel performance across key dimensions such as bookings, revenue, pricing, occupancy, and customer segmentation.
-* **Target Audience:** Hotel Executives, Regional Directors, Strategy Teams
+### 📊 Dashboard 1: Executive Performance Overview
 
-#### Key Metrics Tracked:
-* Total Bookings & Total Revenue
-* Average Daily Rate (ADR)
-* Occupancy Rate
-* Cancellation Ratio (%)
-* Customer Type Distribution
-* Seasonal ADR Trends
-* City vs Resort Hotel Comparisons
+- **Type:** Strategic Dashboard  
+- **Target User:** Hotel Executives, Regional Directors  
+- **User Goal:**  
+  *"I want to quickly understand how our hotels are performing overall, spot trends, and identify areas needing attention."*
 
-### 📊 Dashboard 2: Revenue & Guest Behavior
-* **Type:** Analytical Dashboard
-* **Primary Purpose:** To uncover patterns in guest behavior, booking channels, and revenue drivers to support tactical optimization.
-* **Target Audience:** Hotel Managers, Revenue Managers, Marketing & Operations Teams
+#### Storyline & Business Question:  
+*"Are we meeting our business objectives, and where should we focus our strategic efforts?"*
 
-#### Key Metrics Tracked:
-* Revenue by Distribution Channel
-* Cancellation Rate by Market Segment
-* ADR vs Lead Time
-* Special Requests by Customer Type
-* Guest Origin by Country
+#### How the Dashboard Solves the Problem:  
+This dashboard aggregates high-level KPIs—total bookings, revenue, ADR, occupancy, and cancellations—across all hotels and segments. By comparing City vs Resort hotels and tracking trends over time, executives can:
+- Monitor progress toward annual targets
+- Identify underperforming segments or periods
+- Make informed decisions about resource allocation and strategy
 
-### 🔁 Holistic Insight Integration
-Together, these dashboards form a dual-layered decision support system:
-* **Dashboard 1** provides the strategic "big picture" for executives to guide long-term goals.
-* **Dashboard 2** dives into operational intelligence, offering granular insights that help hotel teams fine-tune processes and improve guest experience.
+#### Key Charts & Their Connection:
+- **Total Bookings & Revenue Trend:** Show overall business health and seasonality
+- **ADR & Occupancy Rate:** Reveal pricing power and demand
+- **Cancellation Ratio:** Highlights risk areas
+- **Customer Type & Market Segment Distribution:** Identify which guest types drive business
+- **City vs Resort Comparison:** Pinpoint which hotel types need attention
+
+All charts are interlinked to answer the core question: *"Where are we winning, and where do we need to act?"*
+
+### 📊 Dashboard 2: Revenue & Guest Behavior Insights
+
+- **Type:** Analytical Dashboard  
+- **Target User:** Revenue Managers, Operations Managers, Marketing Teams  
+- **User Goal:**  
+  *"I want to understand what drives revenue and guest behavior, so I can optimize pricing, reduce cancellations, and improve guest experience."*
+
+#### Storyline & Business Question:  
+*"What guest behaviors and channels drive our revenue, and how can we optimize them?"*
+
+#### How the Dashboard Solves the Problem:  
+This dashboard dives into the details behind the numbers, connecting guest behavior to revenue outcomes. It helps managers:
+- Identify which channels and segments have the highest revenue or cancellation rates
+- See how lead time affects ADR and booking patterns
+- Understand guest preferences (special requests, country of origin) for targeted marketing
+
+#### Key Charts & Their Connection:
+- **Revenue by Channel & Market Segment:** Show where money is coming from and where it's lost
+- **Cancellation Rate by Segment:** Pinpoint high-risk areas
+- **ADR vs Lead Time:** Reveal booking behaviors that impact pricing
+- **Special Requests & Guest Origin:** Inform service and marketing strategies
+
+Each chart builds on the others to answer: *"How can we act on guest and channel insights to drive better results?"*
+
+### 🔗 How the Dashboards Work Together
+
+- **Dashboard 1** gives executives the "big picture" and flags areas for deeper analysis.
+- **Dashboard 2** lets managers drill down, find root causes, and take action.
+- The story flows from strategy to operations, ensuring every chart and metric is part of a unified, actionable business narrative.
 
 ## Features
 

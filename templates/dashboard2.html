@@ -5,7 +5,7 @@
 <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900">Operational Analytics Dashboard</h1>
     <p class="mt-2 text-gray-600">Detailed analysis of booking patterns, customer behavior, and operational metrics for tactical decision-making.</p>
-</div>
+            </div>
 
 <!-- Main Charts Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -13,26 +13,26 @@
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Cancellations by Market Segment</h3>
         <canvas id="cancelBySegmentChart"></canvas>
-    </div>
+        </div>
     
     <!-- Lead Time vs ADR -->
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Lead Time vs Average Daily Rate</h3>
         <canvas id="leadVsAdrChart"></canvas>
-    </div>
+            </div>
     
     <!-- Revenue by Distribution Channel -->
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Revenue by Distribution Channel</h3>
         <canvas id="revenueByChannelChart"></canvas>
-    </div>
+            </div>
     
     <!-- Special Requests by Customer Type -->
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Special Requests by Customer Type</h3>
         <canvas id="specialRequestsChart"></canvas>
-    </div>
-</div>
+                    </div>
+                </div>
 
 <!-- Detailed Analysis Section -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -52,8 +52,8 @@
                     <li>Most common customer type: <span id="commonCustomerType">-</span></li>
                 </ul>
             </div>
-        </div>
-    </div>
+                    </div>
+                </div>
     
     <!-- Revenue Optimization -->
     <div class="bg-white rounded-lg shadow-md p-6">
@@ -90,11 +90,11 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+    <script>
 // Chart configurations
 const chartConfigs = {
     cancelBySegment: {
-        type: 'bar',
+            type: 'bar',
         options: {
             responsive: true,
             plugins: {
@@ -103,7 +103,7 @@ const chartConfigs = {
                     text: 'Cancellations by Market Segment'
                 }
             },
-            scales: {
+                scales: {
                 y: {
                     beginAtZero: true,
                     stacked: true
@@ -111,11 +111,11 @@ const chartConfigs = {
                 x: {
                     stacked: true
                 }
+                }
             }
-        }
     },
     leadVsAdr: {
-        type: 'scatter',
+            type: 'scatter',
         options: {
             responsive: true,
             plugins: {
@@ -142,7 +142,7 @@ const chartConfigs = {
     },
     revenueByChannel: {
         type: 'pie',
-        options: {
+            options: {
             responsive: true,
             plugins: {
                 title: {
@@ -153,7 +153,7 @@ const chartConfigs = {
         }
     },
     specialRequests: {
-        type: 'bar',
+            type: 'bar',
         options: {
             responsive: true,
             plugins: {
@@ -162,7 +162,7 @@ const chartConfigs = {
                     text: 'Special Requests by Customer Type'
                 }
             },
-            scales: {
+                scales: {
                 y: {
                     beginAtZero: true
                 }
@@ -170,7 +170,7 @@ const chartConfigs = {
         }
     },
     repeatGuests: {
-        type: 'doughnut',
+            type: 'doughnut',
         options: {
             responsive: true,
             plugins: {
@@ -192,8 +192,8 @@ function initCharts() {
         const canvas = document.getElementById(`${chartId}Chart`);
         if (canvas) {
             charts[chartId] = new Chart(canvas, chartConfigs[chartId]);
-        }
-    });
+            }
+        });
 }
 
 // Update all charts with new data
@@ -267,7 +267,7 @@ async function updateAllCharts(hotel, year, month) {
     
     // Update insights and tables
     updateInsights(hotel, year, month);
-}
+        }
 
 // Update insights and detailed analysis
 function updateInsights(hotel, year, month) {
@@ -308,6 +308,6 @@ function updateInsights(hotel, year, month) {
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
     updateAllCharts('All Hotels', 'All Years', 'All Months');
-});
-</script>
+        });
+    </script>
 {% endblock %} 
