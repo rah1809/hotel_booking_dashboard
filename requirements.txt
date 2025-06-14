@@ -8,6 +8,6 @@ streamlit==1.32.0
 pandas==2.2.1
 plotly==5.19.0
 numpy==1.26.4
-sqlalchemy==2.0.27
+sqlalchemy==2.0.28
 python-dateutil==2.8.2
 pytz==2024.1 

@@ -13,7 +13,7 @@ def create_app():
     
     # Configuration
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///hotel.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hotel_booking.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Initialize extensions
@@ -30,19 +30,8 @@ def create_app():
         return User.query.get(int(user_id))
     
     # Register blueprints
-    from app.routes.auth import auth_bp
-    from app.routes.main import main_bp
-    from app.routes.booking import booking_bp
-    from app.routes.room import room_bp
-    from app.routes.user import user_bp
-    from app.routes.dashboard import dashboard_bp
-    
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(main_bp)
-    app.register_blueprint(booking_bp)
-    app.register_blueprint(room_bp)
-    app.register_blueprint(user_bp)
-    app.register_blueprint(dashboard_bp)
+    from app.routes import main
+    app.register_blueprint(main)
     
     # Create database tables
     with app.app_context():

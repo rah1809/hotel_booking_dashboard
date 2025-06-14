@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Strategic Revenue Management{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Strategic Revenue Management</h1>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
+                <select id="timePeriod" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hotel Type</label>
+                <select id="hotelType" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Hotels</option>
+                    <option value="City">City Hotels</option>
+                    <option value="Resort">Resort Hotels</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Market Segment</label>
+                <select id="marketSegment" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Segments</option>
+                    <option value="Transient">Transient</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Group">Group</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Revenue</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="totalRevenue">$0</p>
+            <p class="text-sm text-gray-500" id="revenueChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Average Daily Rate</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="averageRate">$0</p>
+            <p class="text-sm text-gray-500" id="rateChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Occupancy Rate</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="occupancyRate">0%</p>
+            <p class="text-sm text-gray-500" id="occupancyChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">RevPAR</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="revpar">$0</p>
+            <p class="text-sm text-gray-500" id="revparChange">+0% vs last period</p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Revenue Trend -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Revenue Trend</h3>
+            <canvas id="revenueTrendChart" height="300"></canvas>
+        </div>
+        
+        <!-- Revenue by Segment -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Revenue by Segment</h3>
+            <canvas id="revenueSegmentChart" height="300"></canvas>
+        </div>
+        
+        <!-- Geographic Distribution -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Geographic Distribution</h3>
+            <canvas id="geographicChart" height="300"></canvas>
+        </div>
+        
+        <!-- Market Share -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Market Share</h3>
+            <canvas id="marketShareChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize charts
+let revenueTrendChart, revenueSegmentChart, geographicChart, marketShareChart;
+
+// Function to update all charts
+async function updateCharts() {
+    const timePeriod = document.getElementById('timePeriod').value;
+    const hotelType = document.getElementById('hotelType').value;
+    const marketSegment = document.getElementById('marketSegment').value;
+    
+    // Fetch and update revenue trend
+    const trendResponse = await fetch(`/api/revenue/trend?period=${timePeriod}&hotel_type=${hotelType}`);
+    const trendData = await trendResponse.json();
+    updateRevenueTrendChart(trendData);
+    
+    // Fetch and update revenue segments
+    const segmentsResponse = await fetch(`/api/revenue/segments?hotel_type=${hotelType}`);
+    const segmentsData = await segmentsResponse.json();
+    updateRevenueSegmentChart(segmentsData);
+    
+    // Fetch and update geographic distribution
+    const geoResponse = await fetch(`/api/revenue/geographic?hotel_type=${hotelType}`);
+    const geoData = await geoResponse.json();
+    updateGeographicChart(geoData);
+}
+
+// Update Revenue Trend Chart
+function updateRevenueTrendChart(data) {
+    if (revenueTrendChart) {
+        revenueTrendChart.destroy();
+    }
+    
+    const ctx = document.getElementById('revenueTrendChart').getContext('2d');
+    revenueTrendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.periods,
+            datasets: [{
+                label: 'Revenue',
+                data: data.revenue,
+                borderColor: 'rgb(79, 70, 229)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Revenue Trend Over Time'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update Revenue Segment Chart
+function updateRevenueSegmentChart(data) {
+    if (revenueSegmentChart) {
+        revenueSegmentChart.destroy();
+    }
+    
+    const ctx = document.getElementById('revenueSegmentChart').getContext('2d');
+    revenueSegmentChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data.segments,
+            datasets: [{
+                data: data.revenue,
+                backgroundColor: [
+                    'rgb(79, 70, 229)',
+                    'rgb(59, 130, 246)',
+                    'rgb(37, 99, 235)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Revenue Distribution by Segment'
+                }
+            }
+        }
+    });
+}
+
+// Update Geographic Chart
+function updateGeographicChart(data) {
+    if (geographicChart) {
+        geographicChart.destroy();
+    }
+    
+    const ctx = document.getElementById('geographicChart').getContext('2d');
+    geographicChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.countries,
+            datasets: [{
+                label: 'Revenue by Country',
+                data: data.revenue,
+                backgroundColor: 'rgb(79, 70, 229)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Geographic Revenue Distribution'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Event listeners for filters
+document.getElementById('timePeriod').addEventListener('change', updateCharts);
+document.getElementById('hotelType').addEventListener('change', updateCharts);
+document.getElementById('marketSegment').addEventListener('change', updateCharts);
+
+// Initial load
+updateCharts();
+</script>
+{% endblock %}
+{% endblock %} 

@@ -5,7 +5,7 @@
 <div class="mb-8">
     <h1 class="text-3xl font-bold text-gray-900">Strategic Overview Dashboard</h1>
     <p class="mt-2 text-gray-600">Comprehensive view of hotel performance metrics and trends for strategic decision-making.</p>
-</div>
+            </div>
 
 <!-- KPI Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -13,26 +13,26 @@
         <h3 class="text-sm font-medium text-gray-500">Total Bookings</h3>
         <p id="totalBookings" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
         <p class="mt-1 text-sm text-gray-500">All time bookings</p>
-    </div>
-    
+        </div>
+
     <div class="kpi-card">
         <h3 class="text-sm font-medium text-gray-500">Total Revenue</h3>
         <p id="totalRevenue" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
         <p class="mt-1 text-sm text-gray-500">Revenue in USD</p>
-    </div>
+            </div>
     
     <div class="kpi-card">
         <h3 class="text-sm font-medium text-gray-500">Average ADR</h3>
         <p id="averageAdr" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
         <p class="mt-1 text-sm text-gray-500">Average Daily Rate</p>
-    </div>
+            </div>
     
     <div class="kpi-card">
         <h3 class="text-sm font-medium text-gray-500">Occupancy Rate</h3>
         <p id="occupancyRate" class="mt-2 text-3xl font-semibold text-gray-900">-</p>
         <p class="mt-1 text-sm text-gray-500">Average occupancy</p>
-    </div>
-</div>
+            </div>
+        </div>
 
 <!-- Main Charts Grid -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -40,26 +40,26 @@
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Monthly Revenue Trend</h3>
         <canvas id="revenueChart"></canvas>
-    </div>
+                </div>
     
     <!-- Booking Distribution -->
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Hotel Booking Distribution</h3>
         <canvas id="hotelDistributionChart"></canvas>
-    </div>
-    
+        </div>
+
     <!-- Cancellation Analysis -->
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Booking Cancellation Status</h3>
-        <canvas id="cancellationChart"></canvas>
-    </div>
+                        <canvas id="cancellationChart"></canvas>
+                    </div>
     
     <!-- Top Source Markets -->
     <div class="chart-container">
         <h3 class="text-lg font-semibold mb-4">Top Source Markets</h3>
-        <canvas id="topCountriesChart"></canvas>
-    </div>
-</div>
+                        <canvas id="topCountriesChart"></canvas>
+                    </div>
+                </div>
 
 <!-- Insights Section -->
 <div class="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -72,7 +72,7 @@
                 <li>Revenue growth rate: <span id="revenueGrowthRate">-</span></li>
                 <li>Best performing hotel: <span id="bestPerformingHotel">-</span></li>
             </ul>
-        </div>
+            </div>
         <div>
             <h3 class="font-medium text-gray-900 mb-2">Booking Health</h3>
             <ul class="list-disc list-inside text-gray-600 space-y-2">
@@ -86,7 +86,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+    <script>
 // Chart configurations
 const chartConfigs = {
     revenue: {
@@ -222,7 +222,7 @@ async function updateAllCharts(hotel, year, month) {
         ]
     }];
     charts.hotelDistribution.update();
-    
+
     // Update Cancellation Chart
     const cancelData = await fetch(`/cancellation_data?hotel=${hotel}&year=${year}&month=${month}`).then(r => r.json());
     charts.cancellation.data.labels = cancelData.labels;
@@ -272,6 +272,6 @@ async function updateInsights(hotel, year, month) {
 document.addEventListener('DOMContentLoaded', () => {
     initCharts();
     updateAllCharts('All Hotels', 'All Years', 'All Months');
-});
-</script>
+    });
+    </script>
 {% endblock %} 

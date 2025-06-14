@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Insights{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Customer Insights</h1>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Customer Segment</label>
+                <select id="customerSegment" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Segments</option>
+                    <option value="Transient">Transient</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Group">Group</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Booking Channel</label>
+                <select id="bookingChannel" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Channels</option>
+                    <option value="Direct">Direct</option>
+                    <option value="OTA">Online Travel Agency</option>
+                    <option value="Corporate">Corporate</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Time Period</label>
+                <select id="timePeriod" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Customers</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="totalCustomers">0</p>
+            <p class="text-sm text-gray-500" id="customerChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Customer Satisfaction</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="satisfactionScore">0.0</p>
+            <p class="text-sm text-gray-500" id="satisfactionChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Repeat Rate</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="repeatRate">0%</p>
+            <p class="text-sm text-gray-500" id="repeatChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Avg. Customer Value</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="avgCustomerValue">$0</p>
+            <p class="text-sm text-gray-500" id="valueChange">+0% vs last period</p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Customer Segmentation -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Customer Segmentation</h3>
+            <canvas id="segmentationChart" height="300"></canvas>
+        </div>
+        
+        <!-- Customer Satisfaction Trend -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Customer Satisfaction Trend</h3>
+            <canvas id="satisfactionChart" height="300"></canvas>
+        </div>
+        
+        <!-- Booking Channel Analysis -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Booking Channel Analysis</h3>
+            <canvas id="channelChart" height="300"></canvas>
+        </div>
+        
+        <!-- Customer Lifetime Value -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Customer Lifetime Value</h3>
+            <canvas id="lifetimeValueChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize charts
+let segmentationChart, satisfactionChart, channelChart, lifetimeValueChart;
+
+// Function to update all charts
+async function updateCharts() {
+    const customerSegment = document.getElementById('customerSegment').value;
+    const bookingChannel = document.getElementById('bookingChannel').value;
+    const timePeriod = document.getElementById('timePeriod').value;
+    
+    // Fetch and update customer segmentation
+    const segmentationResponse = await fetch(`/api/customers/segmentation?segment=${customerSegment}`);
+    const segmentationData = await segmentationResponse.json();
+    updateSegmentationChart(segmentationData);
+    
+    // Fetch and update customer satisfaction
+    const satisfactionResponse = await fetch(`/api/customers/satisfaction?period=${timePeriod}`);
+    const satisfactionData = await satisfactionResponse.json();
+    updateSatisfactionChart(satisfactionData);
+    
+    // Fetch and update booking channels
+    const channelResponse = await fetch(`/api/customers/channels?channel=${bookingChannel}`);
+    const channelData = await channelResponse.json();
+    updateChannelChart(channelData);
+}
+
+// Update Customer Segmentation Chart
+function updateSegmentationChart(data) {
+    if (segmentationChart) {
+        segmentationChart.destroy();
+    }
+    
+    const ctx = document.getElementById('segmentationChart').getContext('2d');
+    segmentationChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: data.segments,
+            datasets: [{
+                data: data.counts,
+                backgroundColor: [
+                    'rgb(79, 70, 229)',
+                    'rgb(59, 130, 246)',
+                    'rgb(37, 99, 235)'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Customer Distribution by Segment'
+                }
+            }
+        }
+    });
+}
+
+// Update Customer Satisfaction Chart
+function updateSatisfactionChart(data) {
+    if (satisfactionChart) {
+        satisfactionChart.destroy();
+    }
+    
+    const ctx = document.getElementById('satisfactionChart').getContext('2d');
+    satisfactionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.months,
+            datasets: [{
+                label: 'Average Rating',
+                data: data.ratings,
+                borderColor: 'rgb(79, 70, 229)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Customer Satisfaction Trend'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5
+                }
+            }
+        }
+    });
+}
+
+// Update Booking Channel Chart
+function updateChannelChart(data) {
+    if (channelChart) {
+        channelChart.destroy();
+    }
+    
+    const ctx = document.getElementById('channelChart').getContext('2d');
+    channelChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.channels,
+            datasets: [{
+                label: 'Number of Bookings',
+                data: data.counts,
+                backgroundColor: 'rgb(79, 70, 229)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Booking Channel Distribution'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Event listeners for filters
+document.getElementById('customerSegment').addEventListener('change', updateCharts);
+document.getElementById('bookingChannel').addEventListener('change', updateCharts);
+document.getElementById('timePeriod').addEventListener('change', updateCharts);
+
+// Initial load
+updateCharts();
+</script>
+{% endblock %}
+{% endblock %} 

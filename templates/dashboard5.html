@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Operational Efficiency{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Operational Efficiency</h1>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Department</label>
+                <select id="department" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Departments</option>
+                    <option value="Front Desk">Front Desk</option>
+                    <option value="Housekeeping">Housekeeping</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
+                <select id="roomType" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All Room Types</option>
+                    <option value="Standard">Standard</option>
+                    <option value="Deluxe">Deluxe</option>
+                    <option value="Suite">Suite</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                <select id="dateRange" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month" selected>This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Room Utilization</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="roomUtilization">0%</p>
+            <p class="text-sm text-gray-500" id="utilizationChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Service Response Time</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="responseTime">0 min</p>
+            <p class="text-sm text-gray-500" id="responseChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Staff Efficiency</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="staffEfficiency">0%</p>
+            <p class="text-sm text-gray-500" id="efficiencyChange">+0% vs last period</p>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Maintenance Cost</h3>
+            <p class="text-3xl font-bold text-indigo-600" id="maintenanceCost">$0</p>
+            <p class="text-sm text-gray-500" id="costChange">+0% vs last period</p>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Room Utilization -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Room Utilization by Type</h3>
+            <canvas id="utilizationChart" height="300"></canvas>
+        </div>
+        
+        <!-- Service Request Timeline -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Service Request Timeline</h3>
+            <canvas id="serviceRequestChart" height="300"></canvas>
+        </div>
+        
+        <!-- Staff Efficiency -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Staff Efficiency by Department</h3>
+            <canvas id="staffEfficiencyChart" height="300"></canvas>
+        </div>
+        
+        <!-- Maintenance Analysis -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4">Maintenance Analysis</h3>
+            <canvas id="maintenanceChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize charts
+let utilizationChart, serviceRequestChart, staffEfficiencyChart, maintenanceChart;
+
+// Function to update all charts
+async function updateCharts() {
+    const department = document.getElementById('department').value;
+    const roomType = document.getElementById('roomType').value;
+    const dateRange = document.getElementById('dateRange').value;
+    
+    // Fetch and update room utilization
+    const utilizationResponse = await fetch(`/api/operations/room-utilization?room_type=${roomType}`);
+    const utilizationData = await utilizationResponse.json();
+    updateUtilizationChart(utilizationData);
+    
+    // Fetch and update service requests
+    const serviceResponse = await fetch(`/api/operations/service-requests?department=${department}&date_range=${dateRange}`);
+    const serviceData = await serviceResponse.json();
+    updateServiceRequestChart(serviceData);
+    
+    // Fetch and update maintenance metrics
+    const maintenanceResponse = await fetch(`/api/operations/maintenance?department=${department}&date_range=${dateRange}`);
+    const maintenanceData = await maintenanceResponse.json();
+    updateMaintenanceChart(maintenanceData);
+}
+
+// Update Room Utilization Chart
+function updateUtilizationChart(data) {
+    if (utilizationChart) {
+        utilizationChart.destroy();
+    }
+    
+    const ctx = document.getElementById('utilizationChart').getContext('2d');
+    utilizationChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.room_types,
+            datasets: [{
+                label: 'Utilization Rate',
+                data: data.utilization,
+                backgroundColor: 'rgb(79, 70, 229)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Room Utilization by Type'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: value => value + '%'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update Service Request Chart
+function updateServiceRequestChart(data) {
+    if (serviceRequestChart) {
+        serviceRequestChart.destroy();
+    }
+    
+    const ctx = document.getElementById('serviceRequestChart').getContext('2d');
+    serviceRequestChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.request_types,
+            datasets: [{
+                label: 'Response Time (hours)',
+                data: data.response_times,
+                borderColor: 'rgb(79, 70, 229)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Service Request Response Times'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+// Update Maintenance Chart
+function updateMaintenanceChart(data) {
+    if (maintenanceChart) {
+        maintenanceChart.destroy();
+    }
+    
+    const ctx = document.getElementById('maintenanceChart').getContext('2d');
+    maintenanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.maintenance_types,
+            datasets: [{
+                label: 'Average Cost',
+                data: data.avg_costs,
+                backgroundColor: 'rgb(79, 70, 229)'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Maintenance Costs by Type'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: value => '$' + value.toLocaleString()
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Event listeners for filters
+document.getElementById('department').addEventListener('change', updateCharts);
+document.getElementById('roomType').addEventListener('change', updateCharts);
+document.getElementById('dateRange').addEventListener('change', updateCharts);
+
+// Initial load
+updateCharts();
+</script>
+{% endblock %}
+{% endblock %} 

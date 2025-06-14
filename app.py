@@ -1,11 +1,17 @@
 from flask import Flask, render_template, jsonify, request
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
+from app.models import db, Hotel, Room, Booking, Customer, ServiceRequest, MaintenanceRecord, CustomerFeedback, Staff
 
 # Initialize the Flask app
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hotel.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db.init_app(app)
 
 # Load and preprocess the dataset
 data = pd.read_csv('hotel_booking_cleaned.csv')
@@ -83,6 +89,24 @@ def dashboard2():
         special_requests=clean_for_json(special_requests),
         repeat_guests=clean_for_json(repeat_guests)
     )
+
+# Route for Dashboard 3 (Customer Insights)
+@app.route('/dashboard3')
+def dashboard3():
+    """Strategic Revenue Management Dashboard"""
+    return render_template('dashboard3.html')
+
+# Route for Dashboard 4 (Revenue Optimization)
+@app.route('/dashboard4')
+def dashboard4():
+    """Customer Insights Dashboard"""
+    return render_template('dashboard4.html')
+
+# Route for Dashboard 5 (Operational Efficiency)
+@app.route('/dashboard5')
+def dashboard5():
+    """Operational Efficiency Dashboard"""
+    return render_template('dashboard5.html')
 
 # API route for hotel distribution data
 @app.route('/hotel_data')
@@ -240,8 +264,166 @@ def list_routes():
         output.append(line)
     return "<pre>" + "\n".join(output) + "</pre>"
 
+# API endpoints for Dashboard 3 (Strategic Revenue Management)
+@app.route('/api/revenue/trend')
+def revenue_trend():
+    period = request.args.get('period', 'monthly')
+    hotel_type = request.args.get('hotel_type', 'all')
+    
+    query = db.session.query(
+        func.date_trunc(period, Booking.check_in).label('period'),
+        func.sum(Booking.total_amount).label('revenue')
+    ).join(Room).join(Hotel)
+    
+    if hotel_type != 'all':
+        query = query.filter(Hotel.type == hotel_type)
+    
+    results = query.group_by('period').order_by('period').all()
+    
+    return jsonify({
+        'periods': [r.period.strftime('%Y-%m-%d') for r in results],
+        'revenue': [float(r.revenue) for r in results]
+    })
+
+@app.route('/api/revenue/segments')
+def revenue_segments():
+    hotel_type = request.args.get('hotel_type', 'all')
+    
+    query = db.session.query(
+        Customer.customer_type,
+        func.sum(Booking.total_amount).label('revenue')
+    ).join(Booking).join(Room).join(Hotel)
+    
+    if hotel_type != 'all':
+        query = query.filter(Hotel.type == hotel_type)
+    
+    results = query.group_by(Customer.customer_type).all()
+    
+    return jsonify({
+        'segments': [r.customer_type for r in results],
+        'revenue': [float(r.revenue) for r in results]
+    })
+
+@app.route('/api/revenue/geographic')
+def revenue_geographic():
+    hotel_type = request.args.get('hotel_type', 'all')
+    
+    query = db.session.query(
+        Customer.country,
+        func.sum(Booking.total_amount).label('revenue')
+    ).join(Booking).join(Room).join(Hotel)
+    
+    if hotel_type != 'all':
+        query = query.filter(Hotel.type == hotel_type)
+    
+    results = query.group_by(Customer.country).all()
+    
+    return jsonify({
+        'countries': [r.country for r in results],
+        'revenue': [float(r.revenue) for r in results]
+    })
+
+# API endpoints for Dashboard 4 (Customer Insights)
+@app.route('/api/customers/segmentation')
+def customer_segmentation():
+    query = db.session.query(
+        Customer.customer_type,
+        func.count(Customer.id).label('count'),
+        func.avg(Booking.total_amount).label('avg_spend')
+    ).join(Booking).group_by(Customer.customer_type)
+    
+    results = query.all()
+    
+    return jsonify({
+        'segments': [r.customer_type for r in results],
+        'counts': [r.count for r in results],
+        'avg_spend': [float(r.avg_spend) for r in results]
+    })
+
+@app.route('/api/customers/satisfaction')
+def customer_satisfaction():
+    query = db.session.query(
+        func.date_trunc('month', CustomerFeedback.created_at).label('month'),
+        func.avg(CustomerFeedback.rating).label('avg_rating')
+    ).group_by('month').order_by('month')
+    
+    results = query.all()
+    
+    return jsonify({
+        'months': [r.month.strftime('%Y-%m') for r in results],
+        'ratings': [float(r.avg_rating) for r in results]
+    })
+
+@app.route('/api/customers/channels')
+def booking_channels():
+    query = db.session.query(
+        Booking.booking_channel,
+        func.count(Booking.id).label('count'),
+        func.avg(Booking.total_amount).label('avg_amount')
+    ).group_by(Booking.booking_channel)
+    
+    results = query.all()
+    
+    return jsonify({
+        'channels': [r.booking_channel for r in results],
+        'counts': [r.count for r in results],
+        'avg_amounts': [float(r.avg_amount) for r in results]
+    })
+
+# API endpoints for Dashboard 5 (Operational Efficiency)
+@app.route('/api/operations/room-utilization')
+def room_utilization():
+    query = db.session.query(
+        Room.room_type,
+        func.count(Room.id).label('total_rooms'),
+        func.sum(case((Room.status == 'occupied', 1), else_=0)).label('occupied_rooms')
+    ).group_by(Room.room_type)
+    
+    results = query.all()
+    
+    return jsonify({
+        'room_types': [r.room_type for r in results],
+        'utilization': [float(r.occupied_rooms) / float(r.total_rooms) * 100 for r in results]
+    })
+
+@app.route('/api/operations/service-requests')
+def service_requests():
+    query = db.session.query(
+        ServiceRequest.request_type,
+        func.count(ServiceRequest.id).label('count'),
+        func.avg(
+            extract('epoch', ServiceRequest.completed_at - ServiceRequest.created_at)
+        ).label('avg_response_time')
+    ).group_by(ServiceRequest.request_type)
+    
+    results = query.all()
+    
+    return jsonify({
+        'request_types': [r.request_type for r in results],
+        'counts': [r.count for r in results],
+        'response_times': [float(r.avg_response_time) / 3600 for r in results]  # Convert to hours
+    })
+
+@app.route('/api/operations/maintenance')
+def maintenance_metrics():
+    query = db.session.query(
+        MaintenanceRecord.maintenance_type,
+        func.count(MaintenanceRecord.id).label('count'),
+        func.avg(MaintenanceRecord.cost).label('avg_cost')
+    ).group_by(MaintenanceRecord.maintenance_type)
+    
+    results = query.all()
+    
+    return jsonify({
+        'maintenance_types': [r.maintenance_type for r in results],
+        'counts': [r.count for r in results],
+        'avg_costs': [float(r.avg_cost) for r in results]
+    })
+
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True, port=5000)
 
 print(data[(data['arrival_date_year'] == 2015) & (data['arrival_date_month'] == 'March')].shape) 
